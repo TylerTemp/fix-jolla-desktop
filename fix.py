@@ -11,6 +11,7 @@ ABOUT
 """
 import logging
 import sys
+import os
 try:
     from urllib.request import urlretrieve
 except ImportError:
@@ -47,6 +48,9 @@ config = {
 
 for name in sys.argv[1:]:
     name = name.lower()
+    if name == 'zhifubao':
+        name = 'alipay'
+
     logger.info('fixing %s', name)
     if name not in config:
         logger.error('%s not support', name)
@@ -64,7 +68,7 @@ for name in sys.argv[1:]:
     if icon:
         logger.debug('check icon')
         with open(path, 'r', encoding='utf-8') as f:
-            for each in content.splitlines():
+            for each in f:
                 pref, _, subf = each.partition('=')
                 if pref == 'Icon':
                     if not os.path.exists(subf):
