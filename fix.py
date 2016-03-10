@@ -71,10 +71,11 @@ for name in sys.argv[1:]:
             for each in f:
                 pref, _, subf = each.partition('=')
                 if pref == 'Icon':
-                    if not os.path.exists(subf):
-                        logger.debug('try fix icon %s', subf)
-                        real_path, _ = urlretrieve(icon, subf)
+                    icon_path = subf.strip()
+                    if not os.path.exists(icon_path):
+                        logger.debug('try fix icon %s', icon_path)
+                        real_path, _ = urlretrieve(icon, icon_path)
                         logger.info('icon fixed: %s', real_path)
-                        break
+                    break
             else:
                 logger.error('no icon found in %s', path)

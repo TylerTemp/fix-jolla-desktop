@@ -21,3 +21,9 @@ python -c "$(curl -fsSL https://raw.githubusercontent.com/TylerTemp/fix-jolla-de
 ```
 
 replace `<name>` with `taobao`, `alipay`(or `zhifubao`) or `smartbanking`
+
+E.g.
+
+*   Fix taobao: `python -c "$(curl -fsSL https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/fix.py)" taobao`
+*   Fix alipay: `python -c "$(curl -fsSL https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/fix.py)" alipay`
+*   Fix smartbanking: `python -c "$(curl -fsSL https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/fix.py)" smartbanking`
