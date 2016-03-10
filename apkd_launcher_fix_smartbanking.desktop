@@ -1,0 +1,10 @@
+[Desktop Entry]
+Exec=apkd-launcher /data/app/com.zentity.sbank.csobsk-2.apk com.zentity.sbank.csobsk/com.csobsk.smartbankingv2.SplashActivity
+Icon=/var/lib/apkd/apkd_launcher_com_zentity_sbank_csobsk-com_csobsk_smartbankingv2_SplashActivity.png
+Name=SmartBanking
+Type=Application
+Version=1.0
+X-Nemo-Application-Type=no-invoker
+X-Nemo-Single-Instance=no
+X-apkd-apkfile=/data/app/com.zentity.sbank.csobsk-2.apk
+X-apkd-packageName=com.zentity.sbank.csobsk

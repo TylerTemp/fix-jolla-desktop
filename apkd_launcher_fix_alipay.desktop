@@ -1,0 +1,14 @@
+[Desktop Entry]
+Exec=apkd-launcher /data/app/com.eg.android.AlipayGphone-1.apk com.eg.android.AlipayGphone/com.eg.android.AlipayGphone.AlipayLogin
+Icon=/var/lib/apkd/apkd_launcher_com_eg_android_AlipayGphone-com_eg_android_AlipayGphone_AlipayLogin.png
+Name=支付宝
+Type=Application
+Version=1.0
+X-Nemo-Application-Type=no-invoker
+X-Nemo-Single-Instance=no
+X-apkd-apkfile=/data/app/com.eg.android.AlipayGphone-1.apk
+X-apkd-packageName=com.eg.android.AlipayGphone
+MimeType=text/html;x-maemo-urischeme/http;x-maemo-urischeme/https;
+X-Maemo-Service=org.coderus.aliendalvikcontrol
+X-Maemo-Object-Path=/
+X-Maemo-Method=com.eg.android.AlipayGphone.com_2Eeg_2Eandroid_2EAlipayGphone_2EAlipayLogin

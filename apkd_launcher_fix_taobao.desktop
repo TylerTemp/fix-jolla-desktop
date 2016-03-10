@@ -1,0 +1,9 @@
+[Desktop Entry]
+Exec=apkd-launcher /data/app/com.taobao.taobao-2.apk com.taobao.taobao/com.taobao.tao.welcome.Welcome
+Icon=/var/lib/apkd/apkd_launcher_com_taobao_taobao-com_taobao_tao_welcome_Welcome.png
+Name=手机淘宝
+Type=Application
+Version=1.0
+X-Nemo-Application-Type=no-invoker
+X-Nemo-Single-Instance=no
+X-apkd-apkfile=/data/app/com.taobao.taobao-2.apk
