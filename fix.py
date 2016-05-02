@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """
 NAME
     fix-jolla-desktop - a collection for jolla android support desktop fixer
