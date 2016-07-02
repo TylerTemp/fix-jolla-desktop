@@ -45,7 +45,7 @@ config = {
     },
     'cmb': {
         'path': '/usr/share/applications/apkd_launcher_cmb_pb-cmb_pb_ui_PBInitActivity.desktop',
-        'url': 'https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/apkd_launcher_cmb_pb-cmb_pb_ui_PBInitActivity.png',
+        'url': 'https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/apkd_launcher_cmb_pb-cmb_pb_ui_PBInitActivity.desktop',
         'icon': 'https://raw.githubusercontent.com/TylerTemp/DroidSailizedIcon/master/apkd/apkd_launcher_cmb_pb-cmb_pb_ui_PBInitActivity.png'
     }
 }
