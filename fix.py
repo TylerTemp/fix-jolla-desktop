@@ -4,7 +4,7 @@ NAME
     fix-jolla-desktop - a collection for jolla android support desktop fixer
 
 SYNOPSIS
-    fix (taobao | zhifubao | alipay | smartbanking)
+    fix (taobao | zhifubao | alipay | smartbanking | cmb)
 
 ABOUT
     author: TylerTemp <tylertempdev@gmail.com>
@@ -42,6 +42,11 @@ config = {
     'smartbanking': {
         'path': '/usr/share/applications/apkd_launcher_fix_smartbanking.desktop',
         'url': 'https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/apkd_launcher_fix_smartbanking.desktop',
+    },
+    'cmb': {
+        'path': '/usr/share/applications/apkd_launcher_cmb_pb-cmb_pb_ui_PBInitActivity.desktop',
+        'url': 'https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/apkd_launcher_cmb_pb-cmb_pb_ui_PBInitActivity.png',
+        'icon': 'https://raw.githubusercontent.com/TylerTemp/DroidSailizedIcon/master/apkd/apkd_launcher_cmb_pb-cmb_pb_ui_PBInitActivity.png'
     }
 }
 
