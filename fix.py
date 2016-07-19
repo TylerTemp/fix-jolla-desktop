@@ -44,9 +44,14 @@ config = {
         'url': 'https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/apkd_launcher_fix_smartbanking.desktop',
     },
     'cmb': {
-        'path': '/usr/share/applications/apkd_launcher_cmb_pb-cmb_pb_ui_PBInitActivity.desktop',
-        'url': 'https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/apkd_launcher_cmb_pb-cmb_pb_ui_PBInitActivity.desktop',
+        'path': '/usr/share/applications/apkd_launcher_fix_cmb.desktop',
+        'url': 'https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/apkd_launcher_fix_cmb.desktop',
         'icon': 'https://raw.githubusercontent.com/TylerTemp/DroidSailizedIcon/master/apkd/apkd_launcher_cmb_pb-cmb_pb_ui_PBInitActivity.png'
+    },
+    'xiami': {
+        'path': '/usr/share/applications/apkd_launcher_fix_fm_xiami.desktop',
+        'url': 'https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/apkd_launcher_fix_fm_xiami.desktop',
+        'icon': 'https://raw.githubusercontent.com/TylerTemp/DroidSailizedIcon/master/apkd/apkd_launcher_fm_xiami_main-fm_xiami_main_SplashActivity.png'
     }
 }
 
