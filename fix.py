@@ -94,7 +94,7 @@ def _find_apks(name, root):
                         logger.debug('found %s' % fname)
                         yield os.path.normcase(
                             os.path.abspath(
-                                os.path.join(root, dirname)))
+                                os.path.join(root, dirname, fname)))
                         break
 
 
@@ -245,7 +245,7 @@ for name in sys.argv[1:]:
         if pref == 'Exec':
             exec_args = subf.rstrip().split()
             this_index = None
-            if exec_args:
+            if exec_args != ['apkd-launcher']:
                 for this_index, content in enumerate(exec_args):
                     if content.endswith('.apk'):
                         if os.path.exists(content):
@@ -255,6 +255,7 @@ for name in sys.argv[1:]:
             if apkfile is None:
                 _apkfiles = find_apks(name)
                 apkfile = choose(_apkfiles)
+                logger.debug('found apk %s' % apkfile)
 
             if apkfile is None:
                 logger.error('%s apk file missing' % name)
@@ -311,10 +312,27 @@ for name in sys.argv[1:]:
                 desktop_filelines[index] = 'X-apkd-apkfile=%s\n' % apkfile
 
     else:
-        with open(path, 'w', encoding='utf-8') as f:
-            f.writelines(desktop_filelines)
-        logger.info('%s succeed!', name)
-        suc_app.append(name)
+        for index, content in enumerate(desktop_filelines):
+            if content.startswith('X-apkd-packageName='):
+                _, _, oldname = content.partition('=')
+                if oldname.strip():
+                    continue
+
+                if apkfile is None:
+                    logger.error('ERROR: apkfile is None')
+                    err_msg.append('%s apkfile is None' % name)
+                    break
+                pkname = os.path.splitext(
+                    os.path.split(apkfile)[-1])[0].replace(
+                        'apkd_launcher_com_', '').replace(
+                        'apkd_launcher_', ''
+                    )
+                desktop_filelines[index] = 'X-apkd-packageName=%s\n' % pkname
+        else:
+            with open(path, 'w', encoding='utf-8') as f:
+                f.writelines(desktop_filelines)
+            logger.info('%s succeed!', name)
+            suc_app.append(name)
 
 for each in warn_msg:
     print('WARNING: %s' % each)
@@ -328,5 +346,8 @@ if suc_app:
 exit_code = 1 if err_msg else 0
 for each in err_msg:
     sys.stderr.write('%s\n' % each)
+if err_msg:
+    print('Please report to: '
+          'https://github.com/TylerTemp/fix-jolla-desktop/issues')
 
 sys.exit(exit_code)
