@@ -17,7 +17,7 @@ devel-su
 And run the following line:
 
 ```bash
-python -c "$(curl -fsSL https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/fix.py)" <name>
+python -c "$(curl -fsSL https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/fix.py)" <name> ...
 ```
 
 replace `<name>` with `taobao`, `alipay`(or `zhifubao`), `smartbanking` or `cmb`
@@ -29,3 +29,13 @@ E.g.
 *   Fix smartbanking: `python -c "$(curl -fsSL https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/fix.py)" smartbanking`
 *   Fix cmb: `python -c "$(curl -fsSL https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/fix.py)" cmb`
 *   Fix xiami: `python -c "$(curl -fsSL https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/fix.py)" xiami`
+
+## Known Issue ##
+
+1.  You may need to run this script every time the phone gets reboot
+2.  Sometimes when you just install/update an Android app, this script
+    may not work. Try restarting the Dalvik layer (`Settings` -
+    `Android Support` - `Stop` and then `Start` it again) and retry the command.
+3.  This may not work no Jolla C (See
+    [#1](https://github.com/TylerTemp/fix-jolla-desktop/issues/1)).
+    As I don't own a Jolla C thus I can not debug it.

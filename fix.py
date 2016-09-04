@@ -12,13 +12,28 @@ ABOUT
 import logging
 import sys
 import os
+from contextlib import closing
 try:
-    from urllib.request import urlretrieve
+    from urllib.request import urlopen, HTTPError, URLError
 except ImportError:
-    from urllib import urlretrieve
+    from urllib import urlopen, HTTPError, URLError
 
 if sys.version_info[0] <= 2:
     from codecs import open
+
+
+# urlretrieve do not give info if it succeed (status code checking)
+def url_retrieve(url, path):
+    with closing(urlopen(url)) as urlfile:
+        with open(path, 'wb') as outfile:
+            finished = False
+            while not finished:
+                chunk = urlfile.read(8192)
+                if not chunk:
+                    finished = True
+                outfile.write(chunk)
+            else:
+                return None
 
 
 FMT = '\033[34m[%(levelname)1.1s]\033[0m  %(lineno)3d  %(asctime)s | %(message)s'
@@ -56,6 +71,8 @@ config = {
 }
 
 
+err_msg = []
+suc_app = []
 for name in sys.argv[1:]:
     name = name.lower()
     if name == 'zhifubao':
@@ -63,7 +80,8 @@ for name in sys.argv[1:]:
 
     logger.info('fixing %s', name)
     if name not in config:
-        logger.error('%s not support', name)
+        logger.error('not support: %s', name)
+        err_msg.append('%s is not supported so far' % name)
         continue
 
     detail = config[name]
@@ -72,8 +90,15 @@ for name in sys.argv[1:]:
     icon = detail.get('icon', None)
 
     logger.debug('save %s from %s', path, url)
-    real_path, _ = urlretrieve(url, path)
-    logger.debug('saved to %s', real_path)
+    try:
+        url_retrieve(url, path)
+    except (HTTPError, URLError) as e:
+        logger.info('failed to fix desktop %s: %s', name, e)
+        err_msg.append(e)
+        continue
+    else:
+        suc_app.append(name)
+        logger.debug('saved to %s', path)
 
     if icon:
         logger.debug('check icon')
@@ -84,8 +109,27 @@ for name in sys.argv[1:]:
                     icon_path = subf.strip()
                     if not os.path.exists(icon_path):
                         logger.debug('try fix icon %s', icon_path)
-                        real_path, _ = urlretrieve(icon, icon_path)
-                        logger.info('icon fixed: %s', real_path)
+                        try:
+                            url_retrieve(icon, icon_path)
+                        except (HTTPError, URLError) as e:
+                            logger.info('failed to fix icon: %s; %s',
+                                        icon_path,
+                                        e)
+                            err_msg.append(e)
+                        else:
+                            logger.info('icon fixed: %s', icon_path)
                     break
             else:
                 logger.error('no icon found in %s', path)
+
+if suc_app:
+    print('%s %s been fixed!' % (
+        ', '.join(suc_app),
+        'has' if len(suc_app) == 1 else 'have'
+    ))
+
+exit_code = 1 if err_msg else 0
+for each in err_msg:
+    sys.stderr.write('%s\n' % each)
+
+sys.exit(exit_code)
