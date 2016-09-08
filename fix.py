@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 NAME
     fix-jolla-desktop - a collection for jolla android support desktop fixer
@@ -48,10 +49,23 @@ except NameError:
     pass
 
 
+class Writer(StringIO):
+
+    if sys.hexversion >= 0x03000000:
+        def u(self, string):
+            return string
+    else:
+        def u(self, string):
+            return unicode(string)
+
+    def write(self, string):
+        return super(Writer, self).write(self.u(string))
+
+
 # urlretrieve do not give info if it succeed (status code checking)
 def url_retrieve(url, f):
     if hasattr(f, 'write'):
-        return _url_retrieve_stream(f)
+        return _url_retrieve_stream(url, f)
     else:
         with open(f, 'wb') as stream:
             return _url_retrieve_stream(stream)
@@ -66,7 +80,7 @@ def _url_retrieve_stream(url, stream):
             chunk = urlfile.read(8192)
             if not chunk:
                 finished = True
-            stream.write(chunk)
+            stream.write(chunk.decode('utf-8'))
         else:
             stream.flush()
 
@@ -178,7 +192,7 @@ for name in sys.argv[1:]:
         path = _detail['path']
         icon = _detail.get('icon', None)
         logger.debug('save %s from %s', path, url)
-        with StringIO() as stream:
+        with Writer() as stream:
             try:
                 url_retrieve(url, stream)
             except (HTTPError, URLError) as e:
