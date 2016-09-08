@@ -49,6 +49,10 @@ except NameError:
     pass
 
 
+__version__ = '0.0.2'
+__author__ = 'TylerTemp <tylertempdev@gmail.com>'
+
+
 class Writer(StringIO):
 
     if sys.hexversion >= 0x03000000:
@@ -170,198 +174,210 @@ config = {
 }
 
 
-err_msg = []
-warn_msg = []
-suc_app = []
+def fix(argv):
+    err_msg = []
+    warn_msg = []
+    suc_app = []
 
+    for name in argv[1:]:
+        name = name.lower()
+        if name == 'zhifubao':
+            name = 'alipay'
 
-for name in sys.argv[1:]:
-    name = name.lower()
-    if name == 'zhifubao':
-        name = 'alipay'
+        logger.info('fixing %s', name)
 
-    logger.info('fixing %s', name)
-
-    auto_detect = True
-    path = None
-    icon = None
-    desktop_filelines = []
-    if name in config:
-        _detail = config[name]
-        url = _detail['url']
-        path = _detail['path']
-        icon = _detail.get('icon', None)
-        logger.debug('save %s from %s', path, url)
-        with Writer() as stream:
-            try:
-                url_retrieve(url, stream)
-            except (HTTPError, URLError) as e:
-                logger.info('failed to fix desktop %s: %s; try auto-detect',
-                            name,
-                            e)
-                warn_msg.append(
-                    'Try auto detect %s; This may not work as expected' % name)
-            else:
-                stream.seek(0)
-                desktop_filelines.extend(line for line in stream)
-                logger.debug('load desktop for %s' % name)
-
-    if not desktop_filelines:
-        logger.info('template not work: %s; try auto detect', name)
-        if path is None:
-            path = ('/usr/share/applications/apkd_launcher_fix_%s.desktop' %
-                    name.lower())
-
-        desktop_filelines.extend(
-            ('[Desktop Entry]\n',
-             'Exec=apkd-launcher\n',
-             'Name=%s\n' % name,
-             'Type=Application\n',
-             'Version=1.0\n',
-             'X-Nemo-Application-Type=no-invoker\n',
-             'X-Nemo-Single-Instance=no\n',
-             'X-apkd-apkfile=\n',
-             'X-apkd-packageName=\n')
-        )
-
-        if icon:
-            save_icon_folder = os.path.expanduser('~/.android_icon')
-            if not os.path.isdir(save_icon_folder):
-                os.path.makedirs(save_icon_folder)
-            if icon.endswith('/'):
-                fname = icon[:-1].split('/')[-1]
-            else:
-                fname = icon.split('/')[-1]
-            desktop_filelines.insert(
-                2,
-                'Icon=%s\n' % os.path.join(save_icon_folder, fname))
-
-    logger.debug('check desktop file')
-    apkfile = None
-    length = len(desktop_filelines)
-    for rev_index, each in enumerate(desktop_filelines[::-1]):
-        index = length - 1 - rev_index
-        pref, _, subf = each.partition('=')
-        if pref == 'Icon':
-            icon_path = subf.strip()
-            if not os.path.exists(icon_path):
-                logger.debug('try fix icon %s', icon_path)
+        auto_detect = True
+        path = None
+        icon = None
+        desktop_filelines = []
+        if name in config:
+            _detail = config[name]
+            url = _detail['url']
+            path = _detail['path']
+            icon = _detail.get('icon', None)
+            logger.debug('save %s from %s', path, url)
+            with Writer() as stream:
                 try:
-                    url_retrieve(icon, icon_path)
+                    url_retrieve(url, stream)
                 except (HTTPError, URLError) as e:
-                    logger.info('failed to fix icon: %s; %s',
-                                icon_path,
+                    logger.info('failed to fix desktop %s: %s; try auto-detect',
+                                name,
                                 e)
-                    err_msg.append(e)
-                    desktop_filelines.pop(index)
+                    warn_msg.append(
+                        'Try auto detect %s; This may not work as expected' % name)
                 else:
-                    logger.info('icon fixed: %s', icon_path)
-        if pref == 'Exec':
-            exec_args = subf.rstrip().split()
-            this_index = None
-            if exec_args != ['apkd-launcher']:
-                for this_index, content in enumerate(exec_args):
-                    if content.endswith('.apk'):
-                        if os.path.exists(content):
-                            if apkfile is None:
-                                apkfile = content
-                            continue  # no need to fix
-            if apkfile is None:
-                _apkfiles = find_apks(name)
-                apkfile = choose(_apkfiles)
-                logger.debug('found apk %s' % apkfile)
+                    stream.seek(0)
+                    desktop_filelines.extend(line for line in stream)
+                    logger.debug('load desktop for %s' % name)
 
-            if apkfile is None:
-                logger.error('%s apk file missing' % name)
-                err_msg.append(
-                'apk file for %s desktop '
-                'is missing; please report at '
-                'https://github.com/TylerTemp'
-                '/fix-jolla-desktop/issues' % name)
-                break  # failed
+        if not desktop_filelines:
+            logger.info('template not work: %s; try auto detect', name)
+            if path is None:
+                path = ('/usr/share/applications/apkd_launcher_fix_%s.desktop' %
+                        name.lower())
 
-            logger.warning(
-            ('launch using found apk file %s; '
-             'this may not work as expected'),
-            apkfile)
-            warn_msg.append(
-                ('%s using found apk file %s; '
-                 'which might not work as expected') %
-                (name, apkfile))
-            if this_index is None:
-                exec_args.append(apkfile)
-            else:
-                exec_args[this_index] = apkfile
-            exec_args.append('\n')
-            desktop_filelines[index] = ('Exec=' + ' '.join(exec_args))
+            desktop_filelines.extend(
+                ('[Desktop Entry]\n',
+                 'Exec=apkd-launcher\n',
+                 'Name=%s\n' % name,
+                 'Type=Application\n',
+                 'Version=1.0\n',
+                 'X-Nemo-Application-Type=no-invoker\n',
+                 'X-Nemo-Single-Instance=no\n',
+                 'X-apkd-apkfile=\n',
+                 'X-apkd-packageName=\n')
+            )
 
-        if pref == 'X-apkd-apkfile':
-            this_apk = subf.rstrip()
-            if os.path.exists(this_apk):
+            if icon:
+                save_icon_folder = os.path.expanduser('~/.android_icon')
+                if not os.path.isdir(save_icon_folder):
+                    os.path.makedirs(save_icon_folder)
+                if icon.endswith('/'):
+                    fname = icon[:-1].split('/')[-1]
+                else:
+                    fname = icon.split('/')[-1]
+                desktop_filelines.insert(
+                    2,
+                    'Icon=%s\n' % os.path.join(save_icon_folder, fname))
+
+        logger.debug('check desktop file')
+        apkfile = None
+        length = len(desktop_filelines)
+        for rev_index, each in enumerate(desktop_filelines[::-1]):
+            index = length - 1 - rev_index
+            pref, _, subf = each.partition('=')
+            if pref == 'Icon':
+                icon_path = subf.strip()
+                if not os.path.exists(icon_path):
+                    logger.debug('try fix icon %s', icon_path)
+                    try:
+                        url_retrieve(icon, icon_path)
+                    except (HTTPError, URLError) as e:
+                        logger.info('failed to fix icon: %s; %s',
+                                    icon_path,
+                                    e)
+                        err_msg.append(e)
+                        desktop_filelines.pop(index)
+                    else:
+                        logger.info('icon fixed: %s', icon_path)
+            if pref == 'Exec':
+                exec_args = subf.rstrip().split()
+                this_index = None
+                if exec_args != ['apkd-launcher']:
+                    for this_index, content in enumerate(exec_args):
+                        if content.endswith('.apk'):
+                            if os.path.exists(content):
+                                if apkfile is None:
+                                    apkfile = content
+                                continue  # no need to fix
                 if apkfile is None:
-                    apkfile = this_apk
-                continue
+                    _apkfiles = find_apks(name)
+                    apkfile = choose(_apkfiles)
+                    logger.debug('found apk %s' % apkfile)
 
-            if apkfile is None:
-                _apkfiles = find_apks(name)
-                apkfile = choose(_apkfiles)
                 if apkfile is None:
-                    logger.info('%s apk file missing' % name)
+                    logger.error('%s apk file missing' % name)
                     err_msg.append(
-                    '%s desktop apk '
-                    'file is missing; please report at '
+                    'apk file for %s desktop '
+                    'is missing; please report at '
                     'https://github.com/TylerTemp'
-                    '/fix-jolla-desktop/issues')
-                    break
+                    '/fix-jolla-desktop/issues' % name)
+                    break  # failed
 
                 logger.warning(
                 ('launch using found apk file %s; '
-                'this may not work as expected'),
+                 'this may not work as expected'),
                 apkfile)
                 warn_msg.append(
                     ('%s using found apk file %s; '
                      'which might not work as expected') %
                     (name, apkfile))
-            if apkfile is not None:
-                desktop_filelines[index] = 'X-apkd-apkfile=%s\n' % apkfile
+                if this_index is None:
+                    exec_args.append(apkfile)
+                else:
+                    exec_args[this_index] = apkfile
+                exec_args.append('\n')
+                desktop_filelines[index] = ('Exec=' + ' '.join(exec_args))
 
-    else:
-        for index, content in enumerate(desktop_filelines):
-            if content.startswith('X-apkd-packageName='):
-                _, _, oldname = content.partition('=')
-                if oldname.strip():
+            if pref == 'X-apkd-apkfile':
+                this_apk = subf.rstrip()
+                if os.path.exists(this_apk):
+                    if apkfile is None:
+                        apkfile = this_apk
                     continue
 
                 if apkfile is None:
-                    logger.error('ERROR: apkfile is None')
-                    err_msg.append('%s apkfile is None' % name)
-                    break
-                pkname = os.path.splitext(
-                    os.path.split(apkfile)[-1])[0].replace(
-                        'apkd_launcher_com_', '').replace(
-                        'apkd_launcher_', ''
-                    )
-                desktop_filelines[index] = 'X-apkd-packageName=%s\n' % pkname
+                    _apkfiles = find_apks(name)
+                    apkfile = choose(_apkfiles)
+                    if apkfile is None:
+                        logger.info('%s apk file missing' % name)
+                        err_msg.append(
+                        '%s desktop apk '
+                        'file is missing; please report at '
+                        'https://github.com/TylerTemp'
+                        '/fix-jolla-desktop/issues')
+                        break
+
+                    logger.warning(
+                    ('launch using found apk file %s; '
+                    'this may not work as expected'),
+                    apkfile)
+                    warn_msg.append(
+                        ('%s using found apk file %s; '
+                         'which might not work as expected') %
+                        (name, apkfile))
+                if apkfile is not None:
+                    desktop_filelines[index] = 'X-apkd-apkfile=%s\n' % apkfile
+
         else:
-            with open(path, 'w', encoding='utf-8') as f:
-                f.writelines(desktop_filelines)
-            logger.info('%s succeed!', name)
-            suc_app.append(name)
+            for index, content in enumerate(desktop_filelines):
+                if content.startswith('X-apkd-packageName='):
+                    _, _, oldname = content.partition('=')
+                    if oldname.strip():
+                        continue
 
-for each in warn_msg:
-    print('WARNING: %s' % each)
+                    if apkfile is None:
+                        logger.error('ERROR: apkfile is None')
+                        err_msg.append('%s apkfile is None' % name)
+                        break
+                    pkname = os.path.splitext(
+                        os.path.split(apkfile)[-1])[0].replace(
+                            'apkd_launcher_com_', '').replace(
+                            'apkd_launcher_', ''
+                        )
+                    desktop_filelines[index] = 'X-apkd-packageName=%s\n' % pkname
+            else:
+                with open(path, 'w', encoding='utf-8') as f:
+                    f.writelines(desktop_filelines)
+                logger.info('%s succeed!', name)
+                suc_app.append(name)
 
-if suc_app:
-    print('%s %s been fixed!' % (
-        ', '.join(suc_app),
-        'has' if len(suc_app) == 1 else 'have'
-    ))
+    for each in warn_msg:
+        print('WARNING: %s' % each)
 
-exit_code = 1 if err_msg else 0
-for each in err_msg:
-    sys.stderr.write('%s\n' % each)
-if err_msg:
-    print('Please report to: '
-          'https://github.com/TylerTemp/fix-jolla-desktop/issues')
+    if suc_app:
+        print('%s %s been fixed!' % (
+            ', '.join(suc_app),
+            'has' if len(suc_app) == 1 else 'have'
+        ))
 
-sys.exit(exit_code)
+    exit_code = 1 if err_msg else 0
+    for each in err_msg:
+        sys.stderr.write('%s\n' % each)
+    if err_msg:
+        print('Please report to: '
+              'https://github.com/TylerTemp/fix-jolla-desktop/issues')
+
+    return exit_code
+
+
+def main():
+    if len(sys.argv) == 1:
+        sys.stderr.write(__doc__)
+        sys.stderr.write('\n')
+        return 1
+    return fix(sys.argv)
+
+
+if __name__ == '__main__':
+    sys.exit(main())
