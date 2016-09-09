@@ -50,7 +50,7 @@ except NameError:
     pass
 
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 __author__ = 'TylerTemp <tylertempdev@gmail.com>'
 
 
@@ -73,7 +73,7 @@ def url_retrieve(url, f):
         return _url_retrieve_stream(url, f)
     else:
         with open(f, 'wb') as stream:
-            return _url_retrieve_stream(stream)
+            return _url_retrieve_stream(url, stream)
 
 
 def _url_retrieve_stream(url, stream):
@@ -85,21 +85,25 @@ def _url_retrieve_stream(url, stream):
             chunk = urlfile.read(8192)
             if not chunk:
                 finished = True
-            stream.write(chunk.decode('utf-8'))
+            try:
+                chunk = chunk.decode('utf-8')
+            except BaseException:
+                pass
+            stream.write(chunk)
         else:
             stream.flush()
 
 
-def find_apks(name):
-    result = list(_find_apks(name.lower(), '/data/app'))
+def find_apks(names):
+    result = list(_find_apks(names, '/data/app'))
     if result:
         return result
     else:
         logger.info('not found in /app/data, try /. This may take a long time')
-        return list(_find_apks(name.lower(), '/'))
+        return list(_find_apks(names, '/'))
 
 
-def _find_apks(name, root):
+def _find_apks(names, root):
     patten = re.compile('\W')
     for dirname, _folders, fnames in os.walk(root):
         # logger.debug((dirname, _folders, fnames))
@@ -108,13 +112,14 @@ def _find_apks(name, root):
                 # logger.debug('%s -> %s', name, fname)
                 bname = fname[:-4]
                 bases = [x.lower() for x in patten.split(bname)]
-                for base in bases:
-                    if name in base:
-                        logger.debug('found %s' % fname)
-                        yield os.path.normcase(
-                            os.path.abspath(
-                                os.path.join(root, dirname, fname)))
-                        break
+                for name in names:
+                    for base in bases:
+                        if name in base:
+                            logger.debug('found %s' % fname)
+                            yield os.path.normcase(
+                                os.path.abspath(
+                                    os.path.join(root, dirname, fname)))
+                            break
 
 
 def choose(lis):
@@ -128,7 +133,7 @@ def choose(lis):
     result = None
     while result is None:
         raw_index = input(
-            'Which one is the apk file (input number)?/q to quit:').strip()
+            'Which one is the apk file? (input number, q to quit)').strip()
         if raw_index == 'q':
             print('exit.')
             sys.exit(0)
@@ -161,6 +166,8 @@ config = {
     'smartbanking': {
         'path': '/usr/share/applications/apkd_launcher_fix_smartbanking.desktop',
         'url': 'https://raw.githubusercontent.com/TylerTemp/fix-jolla-desktop/master/apkd_launcher_fix_smartbanking.desktop',
+        'icon': 'https://raw.githubusercontent.com/TylerTemp/DroidSailizedIcon/master/apkd/apkd_launcher_com_zentity_sbank_csobsk-com_csobsk_smartbankingv2_SplashActivity.png',
+        'alias': ['zentity', 'sbank', 'csobsk']
     },
     'cmb': {
         'path': '/usr/share/applications/apkd_launcher_fix_cmb.desktop',
@@ -191,11 +198,13 @@ def fix(argv):
         path = None
         icon = None
         desktop_filelines = []
+        alias = [name]
         if name in config:
             _detail = config[name]
             url = _detail['url']
             path = _detail['path']
             icon = _detail.get('icon', None)
+            alias.extend(_detail.get('alias', []))
             logger.debug('save %s from %s', path, url)
             with Writer() as stream:
                 try:
@@ -249,7 +258,8 @@ def fix(argv):
             pref, _, subf = each.partition('=')
             if pref == 'Icon':
                 icon_path = subf.strip()
-                if not os.path.exists(icon_path):
+                if (not os.path.exists(icon_path) or
+                        os.path.getsize(icon_path) == 0):
                     logger.debug('try fix icon %s', icon_path)
                     try:
                         url_retrieve(icon, icon_path)
@@ -270,9 +280,9 @@ def fix(argv):
                             if os.path.exists(content):
                                 if apkfile is None:
                                     apkfile = content
-                                continue  # no need to fix
+                            break  # no need to fix
                 if apkfile is None:
-                    _apkfiles = find_apks(name)
+                    _apkfiles = find_apks(alias)
                     apkfile = choose(_apkfiles)
                     logger.debug('found apk %s' % apkfile)
 
@@ -308,7 +318,7 @@ def fix(argv):
                     continue
 
                 if apkfile is None:
-                    _apkfiles = find_apks(name)
+                    _apkfiles = find_apks(alias)
                     apkfile = choose(_apkfiles)
                     if apkfile is None:
                         logger.info('%s apk file missing' % name)
