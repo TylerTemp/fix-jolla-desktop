@@ -18,6 +18,7 @@ import sys
 import os
 from contextlib import closing
 import os
+import stat
 import re
 try:
     from urllib.request import urlopen, HTTPError, URLError
@@ -108,7 +109,7 @@ def _find_apks(name, root):
                 bname = fname[:-4]
                 bases = [x.lower() for x in patten.split(bname)]
                 for base in bases:
-                    if name in bases:
+                    if name in base:
                         logger.debug('found %s' % fname)
                         yield os.path.normcase(
                             os.path.abspath(
@@ -349,6 +350,8 @@ def fix(argv):
             else:
                 with open(path, 'w', encoding='utf-8') as f:
                     f.writelines(desktop_filelines)
+                st = os.stat(path)
+                os.chmod(path, st.st_mode | stat.S_IREAD)
                 logger.info('%s succeed!', name)
                 suc_app.append(name)
 
