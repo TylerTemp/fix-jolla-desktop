@@ -62,6 +62,6 @@ python -c "$(curl -fsSL https://raw.githubusercontent.com/TylerTemp/fix-jolla-de
 
 ## TODO ##
 
-[ ] Be able to uninstall an icon when user found it does not work
-[ ] Allow to set icon
-[ ] Allow to change name
+- [ ] Be able to uninstall an icon when user found it does not work
+- [ ] Allow to set icon
+- [ ] Allow to change name
