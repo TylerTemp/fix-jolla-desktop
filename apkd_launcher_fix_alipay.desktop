@@ -9,6 +9,3 @@ X-Nemo-Single-Instance=no
 X-apkd-apkfile=/data/app/com.eg.android.AlipayGphone-1.apk
 X-apkd-packageName=com.eg.android.AlipayGphone
 MimeType=text/html;x-maemo-urischeme/http;x-maemo-urischeme/https;
-X-Maemo-Service=org.coderus.aliendalvikcontrol
-X-Maemo-Object-Path=/
-X-Maemo-Method=com.eg.android.AlipayGphone.com_2Eeg_2Eandroid_2EAlipayGphone_2EAlipayLogin
