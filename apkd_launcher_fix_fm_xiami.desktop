@@ -9,6 +9,3 @@ X-Nemo-Single-Instance=no
 X-apkd-apkfile=/data/app/fm.xiami.main-1.apk
 X-apkd-packageName=fm.xiami.main
 MimeType=text/html;x-maemo-urischeme/http;x-maemo-urischeme/https;
-X-Maemo-Service=org.coderus.aliendalvikcontrol
-X-Maemo-Object-Path=/
-X-Maemo-Method=fm.xiami.main.fm_2Exiami_2Emain_2ESplashActivity
